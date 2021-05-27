@@ -1,0 +1,16 @@
+#+TITLE: Solutions for ~xchg rax,rax~
+
+This repo  contains annotated solutions  for the book ~xchg  rax,rax~ by
+~xorpd~.
+
+None of  this code is  mine, so use it  carefully -- specially  if you
+plan on executing any snippet.
+
+Oh, don't just go looking around  for answers, try to figure stuff for
+yourself. Nonetheless -- stuff here might be plain wrong.
+
+You can read the book online [[https://www.xorpd.net/pages/xchg_rax/snip_00.html][here]].
+
+The Intel x86_64 ISA is [[https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf][here]].
+
+Good luck.
