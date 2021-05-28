@@ -1,0 +1,88 @@
+#+TITLE: Solutions
+#+startup: content
+
+Consultar também: http://ref.x86asm.net/index.html
+E também: http://ref.x86asm.net/coder-abc.html
+E também: https://web.itu.edu.tr/kesgin/mul06/intel/index.html
+
+[[https://wiki.cdot.senecacollege.ca/wiki/X86_64_Register_and_Instruction_Quick_Start][Guia rápido dos registradores]].
+
+E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/nios2/n2cpu_nii51017.pdf][Instruction Set Reference]].
+
+* 0x00
+
+#+begin_src asm
+	xor	eax,eax	; 1. eax <- zero, já que X xor X = 0
+	lea	rbx,[0]	; 2. rbx <- endereço de memória 0
+	loop	$	; 3. rcx <- rcx - 1. Se rcx <> 0, JMP para
+			; instrução atual. Em outras palavras,
+			; loop decrementando rcx até que rcx = 0
+	mov	rdx,0	; 4. rdx <- 0, sem surpresas
+	and	esi,0	; 5. esi <- 0, já que X and 0 = 0
+	sub	edi,edi	; 6. edi <- 0, já que X - X = 0
+	push	0	; 7. Dá push em 0 na pilha...
+	pop	rbp	; ...e dá pop no 0 que está no topo da
+			; pilha, diretamente para rbp.
+#+end_src
+
+** Notas
+
+Em   geral,  registradores   começados  com   E  são   registradores
+extendidos  (32 bits).   Os  começados com  R  são similares,  porém
+usados em contextos de 64 bits.
+
+- ~[X]~: local apontado por ~X~.
+- ~XOR A,B~: ~A <- A ^ B~
+- ~LEA A,[B]~:  Parece ~MOV~, mas ~A  <- B~. Comparativamente, ~MOV~  faz ~A <-
+  *[B]~.
+- ~RCX~: Geralmente usado como contador/índice mesmo.
+- ~EDX~: Geralmente usado  como auxiliar e como extensor  de precisão de
+  ~EAX~. Por  exemplo, em 64-bit,  um número grande pode  ser armazenado
+  usando ~EDX:EAX~.
+- ~LOOP LABEL~: Decrementa ~RCX~. Se ~RCX~ não for igual a zero, dá ~JMP~ para
+  ~LABEL~.
+- ~ESI~: Source  Index (extendido). Registrador  não-volátil normalmente
+  usado   para  armazenar   ponteiros.  Aponta   para  a   "fonte",  o
+  "início". Imagine armazenar o endereço  de uma string que está sendo
+  copiada para a memória.
+- ~EDI~:  Destination  Index  (extendido). Complementa  ~ESI~;  imagine  o
+  endereço para onde a string está sendo copiada na memória.
+- ~RBP~: Ponteiro base para a pilha (extendido, 64 bits).
+
+* 0x01
+
+#+begin_src asm
+.loop:
+	xadd	rax,rdx ; temp <- rax + rdx, rdx <- rax, rax <- temp
+	loop	.loop	; Itera decrementando rcx até rcx = 0
+#+end_src
+
+** Notas
+
+Este é  o algoritmo  para calcular  o N-ésimo  número da  sequência de
+Fibonacci, de forma iterativa.
+
+O algoritmo usa ~rax~ como resultado atual, e ~rdx~ como acumulador para o
+resultado anterior. ~rcx~ determina o valor de N.
+
+O prelúdio  a seguir  fará com  que o valor  remanescente ao  final da
+execução, em ~rax~, seja ~8~:
+
+#+begin_src asm
+	mov	rax,1
+	mov	rdx,0
+	mov	rcx,5
+#+end_src
+
+Isso faz com que iniciemos a sequência ~0~,  ~1~, ~1~, ~2~, ~3~, ~5~, ~8~, tal que a
+contagem se inicie a partir do primeiro ~1~.
+
+Recomenda-se iniciar com  o seguinte prelúdio para  termos a sequência
+de Lucas ao invés de Fibonacci:
+
+#+begin_src asm
+	mov	rax,2
+	mov	rdx,1
+	mov	rcx,N ; trocar N pelo número designado
+#+end_src
+

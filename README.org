@@ -1,16 +1,16 @@
 #+TITLE: Solutions for ~xchg rax,rax~
 
-This repo  contains annotated solutions  for the book ~xchg  rax,rax~ by
-~xorpd~.
+Esse  repositório contém  soluções  com anotações  para  o livro  ~xchg
+rax,rax~, escrito por ~xorpd~.
 
-None of  this code is  mine, so use it  carefully -- specially  if you
-plan on executing any snippet.
+Nenhum  código  aqui  é  meu,  então  use  o  código  com  cuidado  --
+especialmente se você planeja executar qualquer coisa aqui.
 
-Oh, don't just go looking around  for answers, try to figure stuff for
-yourself. Nonetheless -- stuff here might be plain wrong.
+Tente  não vir  aqui  para  olhar as  respostas,  procure entender  os
+fragmentos de código sozinho(a). Inclusive, as respostas aqui contidas
+podem simplesmente estar erradas.
 
-You can read the book online [[https://www.xorpd.net/pages/xchg_rax/snip_00.html][here]].
+Você poderá ler o livro online [[https://www.xorpd.net/pages/xchg_rax/snip_00.html][aqui]].
 
-The Intel x86_64 ISA is [[https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf][here]].
+Boa sorte.
 
-Good luck.
