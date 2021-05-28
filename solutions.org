@@ -25,6 +25,9 @@ E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/h
 			; pilha, diretamente para rbp.
 #+end_src
 
+O algoritmo  acima mostra várias  formas de zerar  registradores, mais
+especificamente zerando ~eax~, ~rbx~, ~rcx~, ~rdx~, ~esi~, ~edi~ e ~rbp~.
+
 ** Notas
 
 Em   geral,  registradores   começados  com   E  são   registradores
@@ -57,13 +60,13 @@ usados em contextos de 64 bits.
 	loop	.loop	; Itera decrementando rcx até rcx = 0
 #+end_src
 
-** Notas
-
 Este é  o algoritmo  para calcular  o N-ésimo  número da  sequência de
 Fibonacci, de forma iterativa.
 
 O algoritmo usa ~rax~ como resultado atual, e ~rdx~ como acumulador para o
 resultado anterior. ~rcx~ determina o valor de N.
+
+** Notas
 
 O prelúdio  a seguir  fará com  que o valor  remanescente ao  final da
 execução, em ~rax~, seja ~8~:
