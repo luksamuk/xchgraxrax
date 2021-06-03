@@ -7,7 +7,7 @@ E também: https://web.itu.edu.tr/kesgin/mul06/intel/index.html
 
 [[https://wiki.cdot.senecacollege.ca/wiki/X86_64_Register_and_Instruction_Quick_Start][Guia rápido dos registradores]].
 
-E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/nios2/n2cpu_nii51017.pdf][Instruction Set Reference]].
+E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/nios2/n2cpu_nii51017.pdf][Instruction Set Reference]]. Que também pode ser encontrado [[https://www.felixcloutier.com/x86/][aqui]].
 
 * 0x00
 
@@ -89,3 +89,52 @@ de Lucas ao invés de Fibonacci:
 	mov	rcx,N ; trocar N pelo número designado
 #+end_src
 
+* 0x02
+
+#+begin_src asm
+	neg	rax	; cf = (rax == 0) ? 0 : 1. Nega o valor de rax.
+	sbb	rax,rax	; rax <- (cf == 1) ? -1 : 0
+	neg	rax	; veja acima
+#+end_src
+
+O código  toma o valor  de ~rax~ e, com  base em operações  envolvendo a
+/carry flag/ do registrador, define ~rax~ como ~1~ se seu valor anterior era
+diferente de zero. Caso contrário, define ~rax~ como ~0~.
+
+** Notas
+
+- ~sbb dest,src~  => "Integer subtraction  with borrow". ~dest <-  dest -
+  (src + cf)~.
+- O primeiro  ~neg~ define a  /carry flag/ de  ~rax~ como ~0~  se ~rax =  0~. Do
+  contrário, a /carry flag/ recebe ~1~. Além disso, claro, alterna o sinal
+  do valor em ~rax~.
+- A segunda instrução define ~rax~ como ~-1~  se a /carry flag/ é igual a ~1~;
+  do contrário, define ~rax~ como ~0~.
+- O segundo  ~neg~ modifica a /carry  flag/ como apontado acima,  mas aqui
+  tem o papel de inverter o sinal de ~rax~ quando ~rax = -1~.
+
+Em teoria, a segunda e a terceira instruções poderiam ser substituídas
+por ~jnc~ se  a intenção é realizar /branching/ em  seguida -- por exemplo,
+imagine a situação de um /jmp/ caso ~rax~ seja igual a zero:
+
+#+begin_src asm
+	neg	rax		; Código original
+	sbb	rax,rax		;
+	neg	rax		;
+	test	rax,rax		; zf = (rax == 0) ? 1 : 0
+	jz	algum_label	; pula para algum_label se zf == 1
+#+end_src
+
+Código equivalente:
+
+#+begin_src asm
+	neg	rax
+	jnc	algum_label
+#+end_src
+
+- ~jnc label~ => "Jump if not carry". /jmp/ para ~label~ se ~cf~ é igual a ~0~.
+- ~test  a,b~ =>  "Logical compare".  Realiza AND  lógico entre  ~a~ e  ~b~;
+  descarta  o resultado;  define as  flags  ~sf~, ~zf~  e  ~pf~ com  ~1~ ou  ~0~
+  dependendo do resultado.
+
+  
