@@ -34,14 +34,23 @@ Em   geral,  registradores   começados  com   E  são   registradores
 extendidos  (32 bits).   Os  começados com  R  são similares,  porém
 usados em contextos de 64 bits.
 
+#+begin_example
+0x1122334455667788
+  ================ rax (64 bits)
+          ======== eax (32 bits)
+              ====  ax (16 bits)
+              ==    ah (8 bits)
+                ==  al (8 bits)
+#+end_example
+
 - ~[X]~: local apontado por ~X~.
 - ~XOR A,B~: ~A <- A ^ B~
 - ~LEA A,[B]~:  Parece ~MOV~, mas ~A  <- B~. Comparativamente, ~MOV~  faz ~A <-
   *[B]~.
 - ~RCX~: Geralmente usado como contador/índice mesmo.
 - ~EDX~: Geralmente usado  como auxiliar e como extensor  de precisão de
-  ~EAX~. Por  exemplo, em 64-bit,  um número grande pode  ser armazenado
-  usando ~EDX:EAX~.
+  ~EAX~.  Por  exemplo, um  número  grande  pode ser  armazenado  usando
+  ~EDX:EAX~.
 - ~LOOP LABEL~: Decrementa ~RCX~. Se ~RCX~ não for igual a zero, dá ~JMP~ para
   ~LABEL~.
 - ~ESI~: Source  Index (extendido). Registrador  não-volátil normalmente
@@ -50,7 +59,7 @@ usados em contextos de 64 bits.
   copiada para a memória.
 - ~EDI~:  Destination  Index  (extendido). Complementa  ~ESI~;  imagine  o
   endereço para onde a string está sendo copiada na memória.
-- ~RBP~: Ponteiro base para a pilha (extendido, 64 bits).
+- ~RBP~: Ponteiro base para a pilha (64 bits).
 
 * 0x01
 
@@ -137,4 +146,37 @@ Código equivalente:
   descarta  o resultado;  define as  flags  ~sf~, ~zf~  e  ~pf~ com  ~1~ ou  ~0~
   dependendo do resultado.
 
+* 0x03
+
+#+begin_src asm
+	sub	rdx,rax	; rdx <- rdx - rax.
+			;     cf <- Se rax > rdx, 1. Senão, 0.
+	sbb	rcx,rcx	; rcx <- Se cf = 0, 0. Senão, -1
+	and	rcx,rdx	; rcx <- Se rcx = 0, 0. Senão, rdx
+	add	rax,rcx	; rax <- rax + rcx
+#+end_src
+
+O  código  compara   e  retorna  o  menor  valor  entre   ~rdx~  e  ~rax~,
+armazenando-o em ~rax~ ao  final. Funciona especificamente entre valores
+/unsigned/.
+
+** Notas
+
+- Em ~sub a,b~, ~cf <- 1~ se e somente se ~unsigned(b) > unsigned(a)~.
+  Isso é conhecido  como um /borrow/ (tomar emprestado), como  se faz em
+  uma  operação de  subtração. Em  geral  isso não  demonstra nada  em
+  especial numa  subtração de números  com sinal, mas indica  erros em
+  operações com valores /unsigned/.
+- Se  valores negativos  forem  atribuídos  a ~rdx~  ou  a ~rax~,  deve-se
+  considerar  sua  representação  binária  como  complemento  de  dois
+  -- ~~(x-0b1)~ --, o que se tornará um número exorbitantemente grande.
+- O  uso de  ~sbb~  é similar  ao desafio  anterior,  onde utiliza-se  a
+  instrução com um mesmo registrador  para armazenar o oposto da /carry
+  flag/.  Nesse caso,  o valor  (~-1~  ou ~0~)  serve como  uma espécie  de
+  "seletor" do valor armazenado em ~rdx~;  como o complemento de dois de
+  ~-1~ é uma máscara onde todos os  bits são ~1~, ~and rcx,rdx~ fará com que
+  o valor de ~rdx~  seja armazenado em ~rcx~ sem necessidade  de um ~mov~ ou
+  uma comparação extra. Caso contrário, um valor ~0~ em ~rcx~ fará com que
+  o ~and~ retorne zeros em todos os bits, efetivamente colocando o valor
+  ~0~ em ~rcx~.
   
