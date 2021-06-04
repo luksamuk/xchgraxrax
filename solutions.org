@@ -169,7 +169,8 @@ armazenando-o em ~rax~ ao  final. Funciona especificamente entre valores
   operações com valores /unsigned/.
 - Se  valores negativos  forem  atribuídos  a ~rdx~  ou  a ~rax~,  deve-se
   considerar  sua  representação  binária  como  complemento  de  dois
-  -- ~~(x-0b1)~ --, o que se tornará um número exorbitantemente grande.
+  -- =~(x  - 0b1)=  --,  o  que se  tornará  um número  exorbitantemente
+  grande.
 - O  uso de  ~sbb~  é similar  ao desafio  anterior,  onde utiliza-se  a
   instrução com um mesmo registrador  para armazenar o oposto da /carry
   flag/.  Nesse caso,  o valor  (~-1~  ou ~0~)  serve como  uma espécie  de
