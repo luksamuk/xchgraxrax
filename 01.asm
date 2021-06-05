@@ -9,4 +9,3 @@ _start:
 	loop	.loop	; Itera decrementando rcx até rcx = 0
 	
 	int	0x80	; chamar o kernel para retorno
-

@@ -255,3 +255,44 @@ a somar ou subtrair o valor ~32~ do número representado por ~al~.
 
 - ~0x20~ = ~32~ = ~0010 0000~
 
+* 0x05
+
+#+name: 0x05
+#+begin_src asm
+	sub	rax,5
+	cmp	rax,4
+#+end_src
+
+Subtrai ~5~ de ~rax~, armazenando o resultado em ~rax~, e em seguida compara
+se  ~rax~  é  igual a  ~4~.  Em  suma,  compara  se  ~rax~ era  igual  a  ~9~,
+originalmente.
+
+Acredito  que o  propósito  aqui seja  demonstrar,  através de  estudo
+aprofundado,  que  em essência,  ~sub~  e  ~cmp~  realizam a  exata  mesma
+operação, subtraindo o segundo operando do primeiro e definindo ~EFLAGS~
+de acordo com o resultado.
+
+Todavia,  ~cmp~   não  modifica   seu  primeiro  operando   (~rax~,  nesse
+caso). Dessa forma, a única saída de relevância na execução de ~cmp~ é a
+flag ~zf~.
+
+** Notas
+
+#+begin_src asm :tangle 05.asm :noweb yes
+<<asm_prelude>>
+	mov	rax,9
+<<0x05>>
+	mov	rax,9
+	sub	rax,5
+	sub	rax,4
+#+end_src
+
+- ~cmp~  realiza uma  operação similar  a ~sub~,  porém, não  modifica seu
+  primeiro  operando.  A  comparação portanto  realiza  uma  subtração
+  ~op1 -  op2~, definindo ~EFLAGS~ como  ~sub~ o faria. Nesse  caso, a saída
+  mais importante  de ~cmp~  está na flag  ~ZF~, ativa se  e somente  se o
+  resultado da operação for igual a zero.
+- ~sub~ também define ~eflags~, da mesma  forma como ~cmp~ faz. Assim, ~cmp~ é
+  definitivamente  uma especialização  de ~sub~  que não  altera um  dos
+  operandos, podendo ser mais rápido dependendo de tais operandos.
+  
