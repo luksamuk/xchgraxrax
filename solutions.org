@@ -1,5 +1,6 @@
 #+TITLE: Solutions
 #+startup: content
+#+options: header-args:asm :tangle no
 
 Consultar também: http://ref.x86asm.net/index.html
 E também: http://ref.x86asm.net/coder-abc.html
@@ -9,8 +10,60 @@ E também: https://web.itu.edu.tr/kesgin/mul06/intel/index.html
 
 E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/nios2/n2cpu_nii51017.pdf][Instruction Set Reference]]. Que também pode ser encontrado [[https://www.felixcloutier.com/x86/][aqui]].
 
+* Debug
+
+Antes de mais  nada, lembre-se de *executar apenas código  no qual você
+confia*.
+
+*Não me responsabilizo se algo aqui causar danos ao seu computador.*
+
+Para debugar, recomendo o programa ~DDD~ em conjunto com ~GDB~.
+
+Meu assembler favorito é ~nasm~, então também o recomendo.
+
+Vou adicionar um Makefile que ajuda com isso.
+
+#+begin_src makefile :tangle Makefile
+SRC := $(wildcard *.asm)
+BIN := $(SRC:%.asm=%.out)
+
+.PHONY: clear
+
+all: $(BIN)
+
+%.out: %.o
+	ld -m elf_x86_64 $^ -o $@
+
+%.o: %.asm
+	nasm -felf64 -Fdwarf $^ -o $@
+
+clear:
+	rm -f *.o *.out
+#+end_src
+
+Ao início, é interessante adicionar o seguinte:
+
+#+name: asm_prelude
+#+begin_src asm :tangle no
+	global	_start
+	section	.text
+_start:
+#+end_src
+
+E ao final:
+
+#+name: asm_ending
+#+begin_src asm :tangle no
+	
+	int	0x80	; chamar o kernel para retorno
+#+end_src
+
+Ao  abrir  o programa  no  ~ddd~,  lembre-se  de usar  adequadamente  os
+breakpoints e o watcher de registradores (~Status > Registers...~).
+
 * 0x00
 
+#+name: 0x00
 #+begin_src asm
 	xor	eax,eax	; 1. eax <- zero, já que X xor X = 0
 	lea	rbx,[0]	; 2. rbx <- endereço de memória 0
@@ -63,6 +116,7 @@ usados em contextos de 64 bits.
 
 * 0x01
 
+#+name: 0x01
 #+begin_src asm
 .loop:
 	xadd	rax,rdx ; temp <- rax + rdx, rdx <- rax, rax <- temp
@@ -80,10 +134,13 @@ resultado anterior. ~rcx~ determina o valor de N.
 O prelúdio  a seguir  fará com  que o valor  remanescente ao  final da
 execução, em ~rax~, seja ~8~:
 
-#+begin_src asm
+#+begin_src asm :tangle 01.asm
+<<asm_prelude>>
 	mov	rax,1
 	mov	rdx,0
 	mov	rcx,5
+<<0x01>>
+<<asm_ending>>
 #+end_src
 
 Isso faz com que iniciemos a sequência ~0~,  ~1~, ~1~, ~2~, ~3~, ~5~, ~8~, tal que a
@@ -100,6 +157,7 @@ de Lucas ao invés de Fibonacci:
 
 * 0x02
 
+#+name: 0x02
 #+begin_src asm
 	neg	rax	; cf = (rax == 0) ? 0 : 1. Nega o valor de rax.
 	sbb	rax,rax	; rax <- (cf == 1) ? -1 : 0
@@ -148,6 +206,7 @@ Código equivalente:
 
 * 0x03
 
+#+name: 0x03
 #+begin_src asm
 	sub	rdx,rax	; rdx <- rdx - rax.
 			;     cf <- Se rax > rdx, 1. Senão, 0.
