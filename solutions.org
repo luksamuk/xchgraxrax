@@ -134,7 +134,7 @@ resultado anterior. ~rcx~ determina o valor de N.
 O prelúdio  a seguir  fará com  que o valor  remanescente ao  final da
 execução, em ~rax~, seja ~8~:
 
-#+begin_src asm :tangle 01.asm
+#+begin_src asm :tangle 01.asm :noweb yes
 <<asm_prelude>>
 	mov	rax,1
 	mov	rdx,0

@@ -1,6 +1,11 @@
-<<asm_prelude>>
+	global	_start
+	section	.text
+_start:
 	mov	rax,1
 	mov	rdx,0
 	mov	rcx,5
-<<0x01>>
-<<asm_ending>>
+.loop:
+	xadd	rax,rdx ; temp <- rax + rdx, rdx <- rax, rax <- temp
+	loop	.loop	; Itera decrementando rcx até rcx = 0
+	
+	int	0x80	; chamar o kernel para retorno
