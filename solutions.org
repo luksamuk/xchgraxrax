@@ -240,3 +240,18 @@ armazenando-o em ~rax~ ao  final. Funciona especificamente entre valores
   o ~and~ retorne zeros em todos os bits, efetivamente colocando o valor
   ~0~ em ~rcx~.
   
+* 0x04
+
+#+name: 0x04
+#+begin_src asm
+	xor	al,0x20
+#+end_src
+
+O algoritmo alterna  o sexto bit de  ~al~ (contando de LSB  como sendo o
+primeiro, da direita para a esquerda). Consequentemente, isso equivale
+a somar ou subtrair o valor ~32~ do número representado por ~al~.
+
+** Notas
+
+- ~0x20~ = ~32~ = ~0010 0000~
+
