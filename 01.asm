@@ -7,5 +7,3 @@ _start:
 .loop:
 	xadd	rax,rdx ; temp <- rax + rdx, rdx <- rax, rax <- temp
 	loop	.loop	; Itera decrementando rcx até rcx = 0
-	
-	int	0x80	; chamar o kernel para retorno
