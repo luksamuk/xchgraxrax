@@ -74,6 +74,20 @@ _start:
 O algoritmo  acima mostra várias  formas de zerar  registradores, mais
 especificamente zerando ~eax~, ~rbx~, ~rcx~, ~rdx~, ~esi~, ~edi~ e ~rbp~.
 
+Interessante notar  algumas coisas  aqui, como o  fato de  definir ~eax~
+automaticamente  zera  os  outros   32  bits  mais  significativos  de
+~rax~.  Isso ocorre  por uma  questão de  evitar interdependência  entre
+execução de  programas nos  modos 32 e  64 bits,  especialmente quando
+concorrência  e paralelismo  forem importantes.
+
+Também garante certo aumento de  velocidade por não precisar "mesclar"
+o valor anterior  do registrador com o valor  atual (imagine modificar
+~rax~ e modificar ~eax~ logo após), em especial porque a noção desses dois
+registradores como uma entidade  no processador físico é *virtualizada*,
+da mesma forma como opcodes na realidade se traduzem em microcódigo.
+
+Para maiores informações, veja [[https://stackoverflow.com/a/25456097][esta resposta do StackOverflow]].
+
 ** Notas
 
 Em   geral,  registradores   começados  com   E  são   registradores
