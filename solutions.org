@@ -10,6 +10,9 @@ E também: https://web.itu.edu.tr/kesgin/mul06/intel/index.html
 
 E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/hb/nios2/n2cpu_nii51017.pdf][Instruction Set Reference]]. Que também pode ser encontrado [[https://www.felixcloutier.com/x86/][aqui]].
 
+Aqui tem um [[https://www.omnicalculator.com/math/twos-complement][site para calcular  complemento de dois]] com alguns números
+específicos de bits.
+
 * Debug
 
 Antes de mais  nada, lembre-se de *executar apenas código  no qual você
@@ -355,7 +358,6 @@ Exemplo debugável:
 - A instrução  ~set $rax =  X~ do  GDB me ajudou  aqui a perceber  o que
   estava acontecendo.
 
-
 * 0x07
 
 #+begin_src asm
@@ -370,4 +372,104 @@ ocorre  sobre  um número  negativo;  recordando  de 0x06  que  números
 inteiros com sinal são armazenados  como complementos de dois, podemos
 lembrar  que  incrementar  um   número  negativo  "decrementa"  a  sua
 magnitude. O restante do raciocínio é suficientemente óbvio.
+
+* 0x08
+
+#+name: 0x08
+#+begin_src asm
+	add	rax,rdx
+	rcr	rax,1	; rotaciona rax + carry como LSB p/ a direita
+#+end_src
+
+O  algoritmo  acima realiza  a  média  aritmética entre  dois  números
+/signed/  através  de  divisão  inteira.  O  algoritmo  também  leva  em
+consideração  situações  onde  a  soma  possa  gerar  overflow  /signed/
+(/carry/).
+
+** Notas
+
+- A instrução  ~add~ é capaz de  modificar as flags  ~cf~ e ~of~. ~cf~  é útil
+  para  indicar overflow  em  operações /signed/  (/carry/),  e ~of~  indica
+  overflow em operações /unsigned/.
+- A  instrução ~rcr~  funciona  como a  função diádica  ~⌽~  de APL  (mais
+  especificamente   uma  função   como  ~{¯1⌽⍵}~),   porém  levando   em
+  consideração a flag  ~cf~, de forma que uma rotação  usando ~rcr~ faça o
+  valor de ~cf~ se tornar o  MSB, e o LSB anterior será subsequentemente
+  colocado em ~cf~.
+
+Assembly para testes:
+
+#+begin_src asm :tangle 08.asm :noweb yes
+<<asm_prelude>>
+	; menor inteiro negativo - 1
+	mov	rax,-9223372036854775808
+	mov	rdx,-1	; rdx = -1
+<<0x08>>
+	
+	; maior inteiro positivo + 1
+	mov	rax,9223372036854775807
+	mov	rdx,1	; rdx = 1
+<<0x08>>
+	int	0x80
+#+end_src
+
+Abaixo, alguns scripts em C  para imprimir valores de registradores em
+números decimais.
+
+Menor negativo - 1:
+
+#+begin_src C :results table :cache yes :exports results
+signed long long rax = 0x8000000000000000;
+signed long long rdx = 0xffffffffffffffff;
+signed long long result = 0xbfffffffffffffff;
+printf("rax    %ld\nrdx    %ld\nresult %ld\n", rax, rdx, result);
+#+end_src
+
+#+RESULTS[b31328a51b8b02987d24f814484c98abaf008301]:
+| rax    | -9223372036854775808 |
+| rdx    |                   -1 |
+| result | -4611686018427387905 |
+
+
+Menor negativo - 5:
+
+#+begin_src C :results table :cache yes :exports results
+signed long long rax = 0x8000000000000000;
+signed long long rdx = -5;
+signed long long result = 0xbffffffffffffffd;
+printf("rax    %ld\nrdx    %ld\nresult %ld\n", rax, rdx, result);
+#+end_src
+
+#+RESULTS[ee0ca1f104eb63a0cfc2ab3a2e41c3876000071e]:
+| rax    | -9223372036854775808 |
+| rdx    |                   -5 |
+| result | -4611686018427387907 |
+
+Maior positivo + 1:
+
+#+begin_src C :results table :cache yes :exports results
+signed long long rax = 0x7fffffffffffffff;
+signed long long rdx = 0x1;
+signed long long result = 0x4000000000000000;
+printf("rax    %ld\nrdx    %ld\nresult %ld\n", rax, rdx, result);
+#+end_src
+
+#+RESULTS[8ac0ce4feb5fd06788a7965fde7be1636a5eb395]:
+| rax    | 9223372036854775807 |
+| rdx    |                   1 |
+| result | 4611686018427387904 |
+
+Maior positivo + 5:
+
+#+begin_src C :results table :cache yes :exports results
+signed long long rax = 0x7fffffffffffffff;
+signed long long rdx = 5;
+signed long long result = 0x4000000000000002;
+printf("rax    %ld\nrdx    %ld\nresult %ld\n", rax, rdx, result);
+#+end_src
+
+#+RESULTS[f0e2abd619d2e258df7e00089d319c96ae3dd111]:
+| rax    | 9223372036854775807 |
+| rdx    |                   5 |
+| result | 4611686018427387906 |
 
