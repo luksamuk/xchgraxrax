@@ -473,3 +473,40 @@ printf("rax    %ld\nrdx    %ld\nresult %ld\n", rax, rdx, result);
 | rdx    |                   5 |
 | result | 4611686018427387906 |
 
+* 0x09
+
+#+begin_src asm
+	shr	rax,3	; Shift lógico para a direita, 3 bits
+	adc	rax,0	; Soma envolvendo carry flag
+#+end_src
+
+O    algoritmo    acima    realiza    uma   divisão    por    8    com
+arredondamento. Realizar  ~shr~ com  3 bits equivale  a uma  divisão por
+2³.
+
+A instrução ~adc~, por fim, soma o valor do /carry/ contido em ~cf~, que foi
+ali colocado por ~shr~, o que possibilita um algoritmo de arredondamento
+(se a parte decimal for maior  ou igual a 0.5, adiciona-se uma unidade
+à parte inteira).
+
+O mais  interessante desse algoritmo é  que, por mais que  a definição
+matemática  do  arredondamento derive  de  uma  análise de  sua  parte
+decimal, em nenhum momento pontos flutuantes são tocados.
+
+** Notas
+
+- ~shr~ faz  shift binário  para a  direita (~>>~  em C),  e o  último bit
+  "shift-ado" é colocado em ~cf~. No caso acima, o terceiro bit (contado
+  a partir do LSB) é colocado em  ~cf~, e são adicionados mais três bits
+  vazios à esquerda do número.
+- Isso  significa que  ~shr~ aqui  realiza  uma divisão  inteiro por  8,
+  truncando o resultado.
+
+| rax | resultado |
+|-----+-----------|
+|   5 |         1 |
+|   0 |         0 |
+|  94 |        12 |
+| 255 |        32 |
+|  18 |         2 |
+
