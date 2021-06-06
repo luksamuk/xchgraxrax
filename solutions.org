@@ -356,3 +356,18 @@ Exemplo debugável:
   estava acontecendo.
 
 
+* 0x07
+
+#+begin_src asm
+	inc	rax
+	neg	rax
+	inc	rax
+	neg	rax
+#+end_src
+
+Deixa ~rax~ em seu estado inicial. Em algum ponto, uma das operações ~inc~
+ocorre  sobre  um número  negativo;  recordando  de 0x06  que  números
+inteiros com sinal são armazenados  como complementos de dois, podemos
+lembrar  que  incrementar  um   número  negativo  "decrementa"  a  sua
+magnitude. O restante do raciocínio é suficientemente óbvio.
+
