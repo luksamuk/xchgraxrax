@@ -13,6 +13,8 @@ E o [[https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/h
 Aqui tem um [[https://www.omnicalculator.com/math/twos-complement][site para calcular  complemento de dois]] com alguns números
 específicos de bits.
 
+[[https://www.cs.uaf.edu/2017/fall/cs301/reference/x86_64.html][NASM Cheat Sheet]] para consulta rápida.
+
 * Debug
 
 Antes de mais  nada, lembre-se de *executar apenas código  no qual você
@@ -499,8 +501,8 @@ decimal, em nenhum momento pontos flutuantes são tocados.
   "shift-ado" é colocado em ~cf~. No caso acima, o terceiro bit (contado
   a partir do LSB) é colocado em  ~cf~, e são adicionados mais três bits
   vazios à esquerda do número.
-- Isso  significa que  ~shr~ aqui  realiza  uma divisão  inteiro por  8,
-  truncando o resultado.
+- Isso significa que  ~shr~ aqui (quando analisado  sozinho) realiza uma
+  divisão inteira por 8, truncando o resultado.
 
 | rax | resultado |
 |-----+-----------|
@@ -509,4 +511,105 @@ decimal, em nenhum momento pontos flutuantes são tocados.
 |  94 |        12 |
 | 255 |        32 |
 |  18 |         2 |
+
+* 0x0a
+
+#+name: 0x0a
+#+begin_src asm
+	add	byte [rdi],1	; adic. 1 ao byte menos signif. de [rdi]
+.loop:
+	inc	rdi		; incrementa rdi
+	adc	byte [rdi],0	; adic. carry flag ao byte menos sign. de [rdi]
+	loop	.loop		; se rcx <> 0, vá para .loop
+#+end_src
+
+Este código incrementa um  número arbitrariamente longo, cujo endereço
+esteja descrito no registrador ~rdi~.
+
+Pelas regras  do NASM,  ~rdi~ é  o primeiro  argumento passado  para uma
+função.  Isso significa  que tomaremos  ~rdi~ como  um ponteiro  para um
+número  de  tamanho  arbitrário  e,  baseando-se  em  uma  máquina  de
+endianness /little  endian/, incrementa-se ~rdi~ enquanto  a quantidade de
+bytes do número (ditada inicialmente por ~rcx~, não-presente no snippet)
+não for exaurida.
+
+** Notas
+
+Em NASM/Linux 64-bit, ~rdi~ é o registrador usado para passar o primeiro
+argumento de  uma função,  o que  significa que  provavelmente estamos
+lidando com uma chamada de função aqui.
+
+A  diretiva de  tamanho  ~byte~ (similar  a ~word~,  ~dword~,  ~qword~) é  uma
+diretiva   que  indica   qual   porção  do   registrador  está   sendo
+lida/modificada. Na maior  parte do tempo, isso  é dedutível (exemplo,
+~mov al,[p]~ equivale a ~mov al,byte [p]~).  Todavia, especialmente quando
+estamos falando a  respeito de modificar um registrador  (como no caso
+de 0x0a, onde  um número arbitrário é intencionalmente  colocado em um
+byte específico de um registrador), isso não é opcional.
+
+Na notação do assembler NASM, ~byte  [p]~ equivale a ~byte ptr [p]~. Seria
+interessante  usar  a  segunda   por  uma  questão  de  portabilidade,
+imagino.
+
+A seguir temos um exemplo em C  para uso do algoritmo. O algoritmo foi
+declarado como função  em assembly, e identificado por  seu label como
+sendo uma função  ~extern~. Outra coisa interessante  é que determinamos
+que aqui  o argumento passado  será um ponteiro  para um número  de 64
+bits.
+
+#+begin_src C :main no :tangle 0a_example.c
+#include <stdio.h>
+
+extern void myfunction(long long int*);
+
+int
+main(void)
+{
+    long long int a = 5;
+    long long int b = 6;
+    long long int c = 900;
+
+    printf("a = %lld\nb = %lld\nc = %lld\n", a, b, c);
+    
+    myfunction(&a);
+    myfunction(&b);
+    myfunction(&c);
+
+    printf("a = %lld\nb = %lld\nc = %lld\n", a, b, c);
+    
+    return 0;
+}
+#+end_src
+
+No arquivo de  assembly, primeiro determinamos em ~rcx~ que  se trata de
+um número de  64 bits (8 bytes). Em seguida,  executamos o código como
+proposto no livro.
+
+Também damos um  /label/ ao snippet e declaramos este  /label/ como ~global~
+para que seja visível para o  linker. Finalmente, ao final da execução
+da  função, executamos  ~ret~ para  contrabalancear a  chamada implícita
+deste label que C faz através da instrução ~call~.
+
+#+begin_src asm :tangle 0a.S :noweb yes
+	global myfunction
+
+myfunction:
+	mov	rcx,8	; 64 bits = 8 bytes
+<<0x0a>>
+	ret
+#+end_src
+
+Para  compilar, basta  gerar  o arquivo  ~*.o~ a  partir  do arquivo  de
+assembly, usando  o ~nasm~. Em seguida,  compilamos o arquivo C  para um
+arquivo ~*.o~, e geramos ~0a.out~ usando o próprio GCC como linker.
+
+#+begin_src bash :tangle 0a_compile.sh
+#!/bin/bash
+nasm -felf64 -Fdwarf 0a.S -o 0a.o
+gcc -g -c 0a_example.c -o 0a_example.o
+gcc -g 0a_example.o 0a.o -o 0a.out
+#+end_src
+
+A execução revelou  o resultado esperado, e inclusive  o assembly pode
+ser debuggado cuidadosamente através do GDB, para maiores informações.
 
