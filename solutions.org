@@ -613,3 +613,41 @@ gcc -g 0a_example.o 0a.o -o 0a.out
 A execução revelou  o resultado esperado, e inclusive  o assembly pode
 ser debuggado cuidadosamente através do GDB, para maiores informações.
 
+* 0x0b
+
+#+begin_src asm
+	not	rdx
+	neg	rax
+	sbb	rdx,-1
+#+end_src
+
+O  algoritmo  decide  se  ~rdx~  será  transformado  em  algum  de  seus
+complementos.
+
+Caso ~rax~ seja igual a 0, ~rdx~ receberá seu próprio complemento de dois;
+caso ~rax~ seja diferente de zero, ~rdx~ receberá seu complemento de um.
+
+Em outras palavras,  o valor de ~rax~ seleciona se  ~rdx~ será submetido a
+uma operação similar a ~neg~ ou ~not~, respectivamente.
+
+** Notas
+
+É importante lembrar que a instrução ~neg~ define ~cf~ como ~1~ se e somente
+se  o operando  de  ~neg~ for  diferente  de zero.  Do  contrário, ~cf~  é
+definido como zero.
+
+Ademais, ~sbb~  é uma  subtração envolvendo  a flag  de /borrow/  (~cf~, que
+também é a flag de /carry/):
+
+~sbb a,b => a <- a - (b + cf)~
+
+Dessa forma, caso ~cf~  seja igual a ~1~ (quando ~rax~ é  igual a zero antes
+da  execução  de  ~neg~),  o  valor   ~-1~  será  anulado  e  ~rdx~  sofrerá
+alterações. Caso contrário,  o valor ~1~ acaba sendo somado  a ~rdx~, pela
+aplicação da fórmula.
+
+Como visto  em ~0x06~, aplicar  ~not~ e ~inc~  em um registrador  equivale a
+aplicar  ~neg~ no  mesmo,  o que  configura o  complemento  de dois.  Do
+contrário,  aplicar apenas  ~not~ configura  o complemento  de um,  como
+esperado.
+
