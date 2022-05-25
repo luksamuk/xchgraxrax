@@ -615,6 +615,7 @@ ser debuggado cuidadosamente através do GDB, para maiores informações.
 
 * 0x0b
 
+#+name: 0x0b
 #+begin_src asm
 	not	rdx
 	neg	rax
@@ -650,4 +651,38 @@ Como visto  em ~0x06~, aplicar  ~not~ e ~inc~  em um registrador  equivale a
 aplicar  ~neg~ no  mesmo,  o que  configura o  complemento  de dois.  Do
 contrário,  aplicar apenas  ~not~ configura  o complemento  de um,  como
 esperado.
+
+* 0x0c
+
+#+name: 0x0c
+#+begin_src asm
+	mov	rcx,rax
+	xor	rcx,rbx
+	ror	rcx,0xd
+
+	ror	rax,0xd
+	ror	rbx,0xd
+	xor	rax,rbx
+
+	cmp	rax,rcx
+#+end_src
+
+** Raciocínio
+
+Ambos os blocos chegam ao mesmo resultado.
+
+** Notas
+
+A  instrução  ~ror  reg,n~  (/rotate  right/)  rotaciona  os  bits  do
+registrador  ~reg~,  ~n~ bits  para  a  direita,  de forma  similar  a
+~shr~.  Todavia,   os  bits  menos  significativos   "perdidos"  serão
+colocados na parte mais significativa do número.
+
+#+begin_src asm :tangle 0c.asm :noweb yes
+<<asm_prelude>>
+	mov	rax,1
+	mov	rbx,3
+<<0x0c>>
+	int	0x80
+#+end_src
 
